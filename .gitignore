@@ -1,0 +1,13 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# User preferences (per-project, not committed)
+.claude/claude-code-music.local.md
+
+# Node (in case npx leaves artifacts)
+node_modules/

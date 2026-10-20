@@ -1,0 +1,34 @@
+{
+  "hooks": [
+    {
+      "event": "SessionStart",
+      "matcher": {},
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "Check if the user has music preferences at .claude/claude-code-music.local.md in the project directory. If the file exists and auto_play is true: (1) Read preferences to get the default_mood (use 'chill' if not set) and its genres, (2) Run ${CLAUDE_PLUGIN_ROOT}/scripts/spotify.sh recommend \"<genres>\" 5 with those genres, (3) Parse the JSON to get the first track ID, (4) Run ${CLAUDE_PLUGIN_ROOT}/scripts/spotify.sh play <trackId>, (5) Say one short line: 'Music on: Track by Artist (mood mode). /music to control.' (6) If audio_enabled is true (or not set, since default is enabled), also run: ${CLAUDE_PLUGIN_ROOT}/scripts/speak.sh song and ${CLAUDE_PLUGIN_ROOT}/scripts/speak.sh time. If auto_play is false or the file doesn't exist, do nothing — stay completely silent about music."
+        }
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "matcher": {},
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "You have passive awareness of the developer's mood. ONLY adjust music when there is a STRONG emotional signal in the user's prompt AND music is already playing. First run ${CLAUDE_PLUGIN_ROOT}/scripts/spotify.sh status — if nothing is playing or it returns an error, do nothing. Check if .claude/claude-code-music.local.md exists — if auto_play is false, do nothing. FRUSTRATION signals (bug, broken, wtf, why isn't this working, error, failing, stuck, ugh): run ${CLAUDE_PLUGIN_ROOT}/scripts/spotify.sh recommend \"lo-fi,jazz,ambient\" 5, parse JSON, play first track. TRIUMPH signals (it works, finally, ship it, deploy, let's go, done, nailed it, merged): run ${CLAUDE_PLUGIN_ROOT}/scripts/spotify.sh recommend \"electronic,synthwave,drum-and-bass\" 5, parse JSON, play first track. DEEP FOCUS signals (let me think, complex, architect, design, plan this out, big refactor): run ${CLAUDE_PLUGIN_ROOT}/scripts/spotify.sh recommend \"ambient,classical,post-rock\" 5, parse JSON, play first track. For normal coding prompts, do NOT change music. If you do change a track, add only ~5 words at the end of your response like 'switched to something calmer' or 'hype track incoming'. If audio_enabled is true and you changed the track, also run: ${CLAUDE_PLUGIN_ROOT}/scripts/speak.sh song. Never announce mood detection in text — that's patronizing. Answer the user's actual question first, music is secondary."
+        }
+      ]
+    },
+    {
+      "event": "Stop",
+      "matcher": {},
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "Check if .claude/claude-code-music.local.md exists and read the audio_enabled field. If audio_enabled is false, do nothing. If audio_enabled is true (or the field is missing — default is enabled): Determine if your response just completed a significant piece of work. Significant work includes: finished implementing a feature, fixed a bug, all tests passing, merged a PR, deployed, completed a refactor, generated code the user asked for, or finished any multi-step task. This does NOT include: answering a question, explaining code, showing a diff, or giving advice. If significant work was completed: (1) Run: ${CLAUDE_PLUGIN_ROOT}/scripts/speak.sh task \"<brief description>\" — keep 2-5 words. (2) Run: ${CLAUDE_PLUGIN_ROOT}/scripts/speak.sh time. (3) If music is playing (check ${CLAUDE_PLUGIN_ROOT}/scripts/spotify.sh status), consider switching to a hype track — run ${CLAUDE_PLUGIN_ROOT}/scripts/spotify.sh recommend \"electronic,pop,indie-rock\" 1, parse JSON, play it. If no significant work was completed, do absolutely nothing."
+        }
+      ]
+    }
+  ]
+}
